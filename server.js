@@ -128,10 +128,10 @@ socketServer.on('connection', (socket) => {
         }
         ejecutarSaveShow(obj);
     });
+
     socket.on('add_prod', (prodId) => {
 
         async function ejecutar() {
-            console.log(prodId);
             Producto.getByIdProd(prodId).then((producto) => {
 
                 if (producto) {
@@ -149,6 +149,17 @@ socketServer.on('connection', (socket) => {
             producto = result;
             carrito = await Carritos.getAll(credencial.name);
             socket.emit('new_event', producto, messages, credencial.name, carrito);      
+        }
+        ejecutar();
+    });
+    socket.on('delete_prod', (prodId) => {
+        async function ejecutar() {
+            await Carritos.deleteByIdChart(credencial.name, prodId);
+            const result = await Producto.getAll();
+            producto = result;
+            carrito = await Carritos.getAll(credencial.name);
+
+            socketServer.sockets.emit('new_event', producto, messages, credencial.name,carrito);
         }
         ejecutar();
     });

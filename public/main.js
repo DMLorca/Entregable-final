@@ -15,10 +15,18 @@ const agregarProducto = () => {
 
 const addProd = () => {
   const prodId = document.getElementById("prodId").value; 
-  
-  //const producto = { prodId};                   
+                   
   socket.emit('add_prod', prodId);                
   document.getElementById("prodId").value="";
+
+  return false;                                       
+}
+
+const deleteProd = () => {
+  const prodId = document.getElementById("prodId2").value; 
+                   
+  socket.emit('delete_prod', prodId);                
+  document.getElementById("prodId2").value="";
 
   return false;                                       
 }
