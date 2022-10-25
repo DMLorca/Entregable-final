@@ -33,9 +33,9 @@ class CarritosDaoMongoDb extends ContenedorMongoDb {
         const resFind = await this.modelMongo.find({ user: user });
         console.log(user);
         console.log(resFind);
-        if (resFind[0]) { //Si existe el idc, incrementa en 1 y comprueba otra vez
+        if (resFind[0]) { 
           return null;
-        } else {          //Si no existe el indice, entonces lo guarda y devuelve el guardado
+        } else {          
           const resSave = await this.modelMongo({ user: user }).save();
           return resSave.user;
         }

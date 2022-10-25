@@ -19,7 +19,7 @@ const numberCPUs = os.cpus().length;
 let producto = [];
 let messages = [];
 let carrito = [];
-let credencial = {name: "lucas"};
+let credencial = {name: "diego"};
 
 const app = express();
 //app.use(express.urlencoded({extended: true}));
@@ -125,8 +125,9 @@ socketServer.on('connection', (socket) => {
     socket.on('add_prod', (prodId) => {
 
         async function ejecutar() {
-            Producto.getByIdProd(prodId).then((producto) => {
+            await Carritos.addChartUser(credencial.name);
 
+            Producto.getByIdProd(prodId).then((producto) => {
                 if (producto) {
                     Carritos.addProdChart(producto, credencial.name).then((result) => {
                         if (result){
