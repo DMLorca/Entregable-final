@@ -1,16 +1,4 @@
 
-const Knex = require('knex').default;
-
-const {options_mdb} = require('../options/mariaDB.js');
-const knex = Knex(options_mdb);
-
-const {options} = require('../options/SQLite3.js')
-const knex_sqlite3 = Knex(options);
-
-const tableNameProd = 'productos';
-const tableNameMnsjs = 'mensajes';
-
-
 /* 
 CONFIGURACION MONGODB
 */

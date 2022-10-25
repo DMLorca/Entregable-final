@@ -31,27 +31,8 @@ const deleteProd = () => {
   return false;                                       
 }
 
-const enviarMensaje = () => {
-  const author = document.getElementById("author").value;
-  const text = document.getElementById("text").value; 
-  const fecha = new Date();
-  const objFecha = {
-      dia: fecha.getDate(),
-      mes: fecha.getMonth() + 1,
-      anio: fecha.getFullYear(),
-      hs: fecha.getHours(),
-      min: fecha.getMinutes()
-  }
-const date = `[${objFecha.dia}/${objFecha.mes}/${objFecha.anio} ${objFecha.hs}:${objFecha.min}]`;  
-const mensaje = { author, date , text};                   
 
-  socket.emit('new_message', mensaje);                
-  document.getElementById("author").value="";
-  document.getElementById("text").value="";
-  return false;                                       
-}
-
-const renderPlantilla = (producto, mensaje, cred, carrito) => {
+const renderPlantilla = (producto, cred, carrito) => {
   
 
   fetch('/templateBienvenido.hbs')
@@ -70,14 +51,6 @@ const renderPlantilla = (producto, mensaje, cred, carrito) => {
   document.getElementById('id_del_div').innerHTML = html;    
   })
 
-  fetch('/templateMensajes.hbs')
-  .then((res) => res.text())
-  .then((data) => {
-  const templateChat = Handlebars.compile(data);
-  const htmlChat = templateChat({ mensaje: mensaje});
-  document.getElementById('id_del_div_chat').innerHTML = htmlChat;
-  })
-
   fetch('/templateChart.hbs')
   .then((res) => res.text())
   .then((data) => {
@@ -88,4 +61,4 @@ const renderPlantilla = (producto, mensaje, cred, carrito) => {
 
 }
 
-socket.on('new_event', (productos, mensaje, cred, carrito) => renderPlantilla(productos, mensaje, cred, carrito));
+socket.on('new_event', (productos, cred, carrito) => renderPlantilla(productos, cred, carrito));

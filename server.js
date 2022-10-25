@@ -1,5 +1,5 @@
 const express = require('express');
-const passport = require('./src/passport');
+const passport = require('./src/passportH');
 const session = require('express-session');
 //const session = require('cookie-session');
 const cookieParser = require('cookie-parser');
@@ -7,9 +7,6 @@ const MongoStore = require('connect-mongo');
 const minimist = require("minimist");
 const advancedOptions = {useNewUrlParser: true, useUnifiedTopology: true};
 const Routes = require('./src/routes');
-const {options_mdb} = require('./options/mariaDB.js');
-const {options} = require('./options/SQLite3.js');
-const createTables = require('./src/configT.js')
 const {engine} = require('express-handlebars');
 const { Server: HttpServer } = require('http');       
 const { Server: SocketServer } = require('socket.io');
@@ -22,7 +19,7 @@ const numberCPUs = os.cpus().length;
 let producto = [];
 let messages = [];
 let carrito = [];
-let credencial = {name: "diego"};
+let credencial = {name: "lucas"};
 
 const app = express();
 //app.use(express.urlencoded({extended: true}));
@@ -34,9 +31,6 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 
-let modulo = require('./contenedor/dao/mensajes/contenedorDao');
-let contenedor_prod = new modulo.Contenedor('productos', options_mdb);
-let contenedor_mnsjs = new modulo.Contenedor('mensajes', options);
 
 const httpServer = new HttpServer(app);             
 const socketServer = new SocketServer(httpServer);  
@@ -109,12 +103,11 @@ app.use('/', Routes);
 socketServer.on('connection', (socket) => {
 
     async function init(){
-        await createTables();
-        messages = await contenedor_mnsjs.getAll();
+        
         producto = await Producto.getAll();
         carrito = await Carritos.getAll(credencial.name);
         console.log(carrito);
-        socket.emit('new_event', producto, messages, credencial.name, carrito);      
+        socket.emit('new_event', producto, credencial.name, carrito);      
     }
     init();
 
@@ -124,7 +117,7 @@ socketServer.on('connection', (socket) => {
             await Producto.save(argObj);
             const result = await Producto.getAll();
             producto = result;
-            socketServer.sockets.emit('new_event', producto, messages, credencial.name);
+            socketServer.sockets.emit('new_event', producto, credencial.name);
         }
         ejecutarSaveShow(obj);
     });
@@ -136,8 +129,10 @@ socketServer.on('connection', (socket) => {
 
                 if (producto) {
                     Carritos.addProdChart(producto, credencial.name).then((result) => {
-                        if (result)
-                        console.log("200");
+                        if (result){
+                            console.log("200");
+                            console.log(credencial.name);
+                        }
                         else
                         console.log({ error: 'Carrito no encontrado' });
                     })
@@ -148,7 +143,7 @@ socketServer.on('connection', (socket) => {
             const result = await Producto.getAll();
             producto = result;
             carrito = await Carritos.getAll(credencial.name);
-            socket.emit('new_event', producto, messages, credencial.name, carrito);      
+            socketServer.sockets.emit('new_event', producto, credencial.name, carrito);      
         }
         ejecutar();
     });
@@ -159,18 +154,9 @@ socketServer.on('connection', (socket) => {
             producto = result;
             carrito = await Carritos.getAll(credencial.name);
 
-            socketServer.sockets.emit('new_event', producto, messages, credencial.name,carrito);
+            socketServer.sockets.emit('new_event', producto, credencial.name,carrito);
         }
         ejecutar();
-    });
-    socket.on('new_message', (mensaje) => {
-        async function ejecutarSaveShowMnsjs(mnsj) {
-            await contenedor_mnsjs.save(mnsj);
-            const result = await contenedor_mnsjs.getAll();
-            messages = result;
-            socketServer.sockets.emit('new_event', producto, messages, credencial.name);
-        }
-        ejecutarSaveShowMnsjs(mensaje);
     });
 });
 
